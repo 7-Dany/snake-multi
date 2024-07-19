@@ -15,8 +15,7 @@ const input = document.querySelector('#username')
 form.addEventListener("submit", (event) => {
     event.preventDefault()
     if (input.value) {
-        socket.registerUserName(input.value)
-        dialog.close()
+        socket.registerUserName(input.value, () => dialog.close())
     }
     console.log(event.target)
 })

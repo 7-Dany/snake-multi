@@ -14,11 +14,11 @@ class Socket {
         console.log(this.socket.id)
     }
 
-    registerUserName = (username) => {
+    registerUserName = (username, callBack) => {
         this.socket.emit("send_username", username)
 
         this.socket.on("receive_username", (received) => {
-            if (received) this.data.username = true
+            if (received) callBack()
         })
     }
 }
