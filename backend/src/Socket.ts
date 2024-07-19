@@ -3,6 +3,7 @@ import { Server, type Socket} from 'socket.io'
 
 class SocketServer {
     private io: Server
+    private socket: Socket
     constructor(server: HTTPServer) {
         this.io = new Server(server, {
             serveClient: false,
@@ -20,7 +21,16 @@ class SocketServer {
     }
 
     startListening = (socket: Socket) => {
+        this.socket = socket
         console.log('Listening', socket.id)
+        socket.on("username", this.receiveUserName)
+    }
+
+    receiveUserName = (username: string) => {
+        console.log(username)
+        if (username) {
+            this.socket.emit("username")
+        }
     }
 }
 

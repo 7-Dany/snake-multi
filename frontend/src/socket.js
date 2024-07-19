@@ -10,6 +10,10 @@ class Socket {
     connect = () => {
         console.log(this.socket.id)
     }
+
+    sendUserName = (username) => {
+        this.socket.emit("username", username)
+    }
 }
 
 export default Socket
