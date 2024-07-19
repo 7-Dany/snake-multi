@@ -3,7 +3,7 @@ import { Server, type Socket} from 'socket.io'
 
 class SocketServer {
     private io: Server
-    private socket: Socket
+    private socket: Socket | undefined
     constructor(server: HTTPServer) {
         this.io = new Server(server, {
             serveClient: false,
@@ -23,13 +23,13 @@ class SocketServer {
     startListening = (socket: Socket) => {
         this.socket = socket
         console.log('Listening', socket.id)
-        socket.on("username", this.receiveUserName)
+        socket.on("send_username", this.receiveUserName)
     }
 
     receiveUserName = (username: string) => {
         console.log(username)
         if (username) {
-            this.socket.emit("username")
+            this.socket?.emit("receive_username", true)
         }
     }
 }

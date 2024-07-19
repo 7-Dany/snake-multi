@@ -1,7 +1,10 @@
 import { io } from "socket.io-client";
 
 class Socket {
+
     constructor(url) {
+        this.data = {}
+
         this.socket = io(url)
 
         this.socket.on("connect", this.connect) 
@@ -11,8 +14,12 @@ class Socket {
         console.log(this.socket.id)
     }
 
-    sendUserName = (username) => {
-        this.socket.emit("username", username)
+    registerUserName = (username) => {
+        this.socket.emit("send_username", username)
+
+        this.socket.on("receive_username", (received) => {
+            if (received) this.data.username = true
+        })
     }
 }
 
