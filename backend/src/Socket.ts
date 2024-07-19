@@ -4,6 +4,9 @@ import { Server, type Socket} from 'socket.io'
 class SocketServer {
     private io: Server
     private socket: Socket | undefined
+    private queue: string[]
+    private idTable: Map<string, string>
+
     constructor(server: HTTPServer) {
         this.io = new Server(server, {
             serveClient: false,
@@ -17,6 +20,8 @@ class SocketServer {
             }
         })
 
+        this.queue = []
+        this.idTable = new Map<string ,string>
         this.io.on('connection', this.startListening)
     }
 
@@ -30,6 +35,9 @@ class SocketServer {
         console.log(username)
         if (username) {
             this.socket?.emit("receive_username", true)
+            this.queue.unshift(username)
+            if (this.socket) this.idTable.set(username, this.socket.id)
+            console.log(this.idTable)
         }
     }
 }
