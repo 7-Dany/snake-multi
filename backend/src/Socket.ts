@@ -11,7 +11,7 @@ class SocketServer {
             cookie: true,
             maxHttpBufferSize: 1e7,
             cors: {
-                origin: 'http://localhost:3000',
+                origin: 'http://localhost:5173',
                 credentials: true
             }
         })
@@ -20,7 +20,7 @@ class SocketServer {
     }
 
     startListening = (socket: Socket) => {
-        console.log('Listening')
+        console.log('Listening', socket.id)
     }
 }
 
