@@ -1,10 +1,14 @@
 class Canvas {
-    constructor(id, width, height) {
+    constructor(id, width, height, cellWidth = 1, cellHeight = 1) {
         this.canvas = document.querySelector(`#${id}`)
         this.context = this.canvas.getContext('2d')
         this.canvas.width = width
         this.canvas.height = height
         this.canvas.style.backgroundColor = '#eee'
+        this.cellWidth = cellWidth
+        this.cellHeight = cellHeight
+        this.gridWidth = width / cellWidth
+        this.gridHeight = height / cellHeight
     }
 
     animate = async (callback) => {

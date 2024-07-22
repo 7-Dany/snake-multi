@@ -34,6 +34,31 @@ class Snake{
         if (removeTail) this.parts.popTail()
     }
 
+    getNextMove = () => {
+        let dir = this.queue.count > 0 ? this.queue.head.data : this.dir 
+        let data = this.parts.head.data
+        let part = new Part(data.x, data.y)
+        switch (dir) {
+            case 'u': part.y--; break;
+            case 'd': part.y++; break;
+            case 'l': part.x--; break;
+            case 'r': part.x++; break;
+        }
+
+        return part
+    }
+
+    getPositions = (set) => {
+        let node = this.parts.head
+        while (node != null) {
+            let x = node.data.x
+            let y = node.data.y
+            set.add(`${x},${y}`)
+
+            node = node.next
+        }
+    }
+
     setDir = (key) => {
         if(key === 'a' && this.dir === 'r') return
         if(key === 's' && this.dir === 'u') return
@@ -46,7 +71,6 @@ class Snake{
             case 'd': this.queue.addTail('r'); break;
             case 'w': this.queue.addTail('u'); break;
         }
-
     }
 }
 

@@ -6,18 +6,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vite App</title>
     <link rel="stylesheet" href="/styles/style.css">
-    <script type="module" src="/src/test.js" defer></script>
+    <script type="module" src="/src/main.js" defer></script>
   </head>
   <body>
-    <!-- <dialog open id="dialog">
+    <dialog open id="dialog">
       <form method="dialog" id="dialog-form">
         <label for="username">Username</label>
         <input type="text" id="username">
         <button id="dialog-submit">Submit</button>
       </form>
-    </dialog> -->
+    </dialog>
     <main>
-      <!-- <section>
+      <section id="player-option">
+        <div class="options">
+          <div id="single-option" class="active">
+            <img src="/Emoji-Scara.png" alt="Single Players">
+            <p>Single Player</p>
+          </div>
+          <div id="multi-option">
+            <img src="/Emoji-Scara.png" alt="Multiple Players">
+            <p>Muliple Players</p>
+          </div>
+        </div>
+        <button id="confirm-option">confirm</button>
+      </section>
+      <section id="match-cards">
         <div id="cards">
           <div class="card" id="mine">
             <img src="/Emoji-Scara.png" alt="Scara">
@@ -29,8 +42,8 @@
           </div>
         </div>
         <button id="match">Match</button>
-      </section> -->
-      <section>
+      </section>
+      <section id="snake-canvas">
         <canvas id="snake"></canvas>
       </section>
     </main>
