@@ -7,15 +7,15 @@ class Food {
         this.generate()
     }
 
-    getPositions = () => {
-        let set = new Set()
+    checkPosition = (x, y) => {
         let snakes = this.snakes
 
         for(let snake of snakes){
-            snake.getPositions(set)
+            let positions = snake.positions
+            if(positions.has(`${x},${y}`)) return true
         }
 
-        return set
+        return false
     }
 
     generate = () => {
@@ -24,11 +24,9 @@ class Food {
         
         let free = []
         
-        let positions = this.getPositions()
-
         for (let y = 0; y < gridHeight; y++) {
             for (let x = 0; x < gridWidth; x++) {
-                if (!positions.has(`${x},${y}`)) {
+                if (!this.checkPosition(x, y)) {
                     free.push([x, y])
                 }
             }

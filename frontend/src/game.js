@@ -19,9 +19,8 @@ class Game {
     }
 
     isHittingItSelf = (snake) => {
-        let set = new Set()
-        snake.getPositions(set)
-        return set.size < snake.parts.count
+        let positions = snake.positions
+        return positions.size < snake.parts.count
     }
 
     gameLoop = () => {

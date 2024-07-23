@@ -1,9 +1,11 @@
 import Part from './part'
 import LinkedList from './linked-list'
 
-class Snake{
+class Snake {
     constructor(x, y, dir) {
         let head = new Part(x, y)
+        this.positions = new Set()
+        this.positions.add(`${x},${y}`)
         this.parts = new LinkedList(head)
         this.queue = new LinkedList(dir)
         this.createSnake(x, y)
@@ -22,10 +24,11 @@ class Snake{
     addPart = (x, y) => {
         let part = new Part(x, y)
         this.parts.addTail(part)
-    } 
+        this.positions.add(`${x},${y}`)
+    }
 
     move = (removeTail) => {
-        let {x, y} = this.head()
+        let { x, y } = this.head()
         if (this.queue.count > 0) this.dir = this.queue.popHead()
 
         switch (this.dir) {
@@ -36,13 +39,17 @@ class Snake{
         }
 
         let newHead = new Part(x, y)
+        this.positions.add(`${x},${y}`)
         this.parts.addHead(newHead)
 
-        if (removeTail) this.parts.popTail()
+        if (removeTail) {
+            let {x, y} = this.parts.popTail()
+            this.positions.delete(`${x},${y}`)
+        }
     }
 
     getNextMove = () => {
-        let dir = this.queue.count > 0 ? this.queue.head.data : this.dir 
+        let dir = this.queue.count > 0 ? this.queue.head.data : this.dir
         let data = this.parts.head.data
         let part = new Part(data.x, data.y)
         switch (dir) {
@@ -55,22 +62,11 @@ class Snake{
         return part
     }
 
-    getPositions = (set) => {
-        let node = this.parts.head
-        while (node != null) {
-            let x = node.data.x
-            let y = node.data.y
-            set.add(`${x},${y}`)
-
-            node = node.next
-        }
-    }
-
     setDir = (key) => {
-        if(key === 'a' && this.dir === 'r') return
-        if(key === 's' && this.dir === 'u') return
-        if(key === 'd' && this.dir === 'l') return
-        if(key === 'w' && this.dir === 'd') return
+        if (key === 'a' && this.dir === 'r') return
+        if (key === 's' && this.dir === 'u') return
+        if (key === 'd' && this.dir === 'l') return
+        if (key === 'w' && this.dir === 'd') return
 
         switch (key) {
             case 'a': this.queue.addTail('l'); break;
