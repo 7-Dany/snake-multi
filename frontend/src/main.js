@@ -1,23 +1,29 @@
 import Socket from "./socket"
-import { isValidUsername } from "./utils"
-import { startSingleGame } from "./game"
+import { isValidUsername } from "./misc/utils"
+import Game from "./game"
 
+// Game Classes
 const socket = new Socket("http://localhost:3000")
+const game = new Game(800, 800, 20, 20)
 
-// TODO
-// When the user starts a game, it should create a room, then pick the first 2 in the queue and join them in the room
-// Share the data between both rooms.
-
-const form = document.querySelector('#dialog-form')
-const dialog = document.querySelector('#dialog')
-const input = document.querySelector('#username')
-const match = document.querySelector('#match')
+// Sections
 const playerOption = document.querySelector('#player-option')
+const userInfo = document.querySelector('#user-info')
 const matchCards = document.querySelector('#match-cards')
 const snakeCanvas = document.querySelector('#snake-canvas')
+
+// Player option
 const singePlayer = document.querySelector('#single-option')
 const mutpliePlayers = document.querySelector('#multi-option')
 const confirmOption = document.querySelector('#confirm-option')
+
+// User form
+const form = document.querySelector('#user-form')
+const input = document.querySelector('#username')
+
+// Matching
+const match = document.querySelector('#match')
+
 let isSingle = true
 
 const recievedHandler = (recieved) => {
@@ -29,8 +35,8 @@ const recievedHandler = (recieved) => {
 
     switch (recieved) {
         case 0:
-            dialog.close()
-            playerOption.classList.add('active')
+            userInfo.classList.remove('active')
+            matchCards.classList.add('active')
             break
         default: alert(recievedLog[recieved]); break;
     }
@@ -68,14 +74,19 @@ confirmOption.addEventListener('click', (event) => {
     if(isSingle){
         playerOption.classList.remove('active')
         snakeCanvas.classList.add('active')
-        startSingleGame()
+        game.startGame()
     }
     else{
         playerOption.classList.remove('active')
-        matchCards.classList.add('active')
+        userInfo.classList.add('active')
     }
 })
 
 match.addEventListener('click', (event) => {
     socket.startMatching()
+})
+
+window.addEventListener('keydown', event => {
+    let key = event.key
+    game.mainSnake.setDir(key)
 })

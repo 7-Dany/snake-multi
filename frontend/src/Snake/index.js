@@ -6,6 +6,13 @@ class Snake{
         let head = new Part(x, y)
         this.parts = new LinkedList(head)
         this.queue = new LinkedList(dir)
+        this.createSnake(x, y)
+    }
+
+    createSnake = (x, y) => {
+        this.addPart(x, y + 1)
+        this.addPart(x, y + 2)
+        this.addPart(x, y + 3)
     }
 
     head = () => {

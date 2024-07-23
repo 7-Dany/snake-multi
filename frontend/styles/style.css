@@ -34,19 +34,22 @@ main {
 }
 
 #player-option,
+#user-info,
 #match-cards,
 #snake-canvas {
   display: none;
 }
 
-#snake-canvas.active{
-  display: block;
-}
-
-#player-option.active {
+#player-option.active,
+#match-cards.active {
   display: flex;
   flex-direction: column;
   gap: 2rem;
+}
+
+#user-info.active,
+#snake-canvas.active {
+  display: block;
 }
 
 .options {
@@ -106,15 +109,6 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
-dialog[open] {
-  width: 100%;
-  height: 100%;
-  border: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 form {
   display: flex;
   flex-direction: column;
@@ -139,17 +133,9 @@ form input {
   outline: none;
 }
 
-#match-cards.active{
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
 #match {
   width: 100%;
-  margin-top: 2rem;
 }
-
 
 #cards {
   display: flex;

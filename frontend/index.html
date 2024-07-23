@@ -9,15 +9,8 @@
     <script type="module" src="/src/main.js" defer></script>
   </head>
   <body>
-    <dialog open id="dialog">
-      <form method="dialog" id="dialog-form">
-        <label for="username">Username</label>
-        <input type="text" id="username">
-        <button id="dialog-submit">Submit</button>
-      </form>
-    </dialog>
     <main>
-      <section id="player-option">
+      <section id="player-option" class="active">
         <div class="options">
           <div id="single-option" class="active">
             <img src="/Emoji-Scara.png" alt="Single Players">
@@ -29,6 +22,13 @@
           </div>
         </div>
         <button id="confirm-option">confirm</button>
+      </section>
+      <section id="user-info">
+        <form id="user-form">
+          <label for="username">Username</label>
+          <input type="text" id="username">
+          <button id="dialog-submit">Submit</button>
+        </form>
       </section>
       <section id="match-cards">
         <div id="cards">

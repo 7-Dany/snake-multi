@@ -1,4 +1,4 @@
-import { getRandomNumber } from "../utils"
+import { getRandomNumber } from "../misc/utils"
 
 class Food {
     constructor(canvas, snakes) {
