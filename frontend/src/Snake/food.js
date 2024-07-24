@@ -1,40 +1,24 @@
-import { getRandomNumber } from "../misc/utils"
-
 class Food {
-    constructor(canvas, snakes) {
+    constructor(canvas, snakes, freeCells) {
         this.snakes = snakes
         this.canvas = canvas
+        this.freeCells = freeCells
+        this.x = null
+        this.y = null
         this.generate()
     }
 
-    checkPosition = (x, y) => {
-        let snakes = this.snakes
-
-        for(let snake of snakes){
-            let positions = snake.positions
-            if(positions.has(`${x},${y}`)) return true
-        }
-
-        return false
-    }
-
     generate = () => {
-        let gridWidth = this.canvas.gridWidth
-        let gridHeight = this.canvas.gridHeight
-        
-        let free = []
-        
-        for (let y = 0; y < gridHeight; y++) {
-            for (let x = 0; x < gridWidth; x++) {
-                if (!this.checkPosition(x, y)) {
-                    free.push([x, y])
-                }
-            }
+        if (this.x && this.y) {
+            this.freeCells.add(`${this.x},${this.y}`)
         }
 
-        let i = getRandomNumber(free.length)
-        this.x = free[i][0]
-        this.y = free[i][1]
+        let position = this.freeCells.getRandomPosition()
+        const [x, y] = position.split(',')
+        this.x = x
+        this.y = y
+
+        this.freeCells.delete(`${this.x},${this.y}`)
     }
 }
 

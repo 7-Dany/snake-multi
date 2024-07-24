@@ -2,10 +2,12 @@ import Part from './part'
 import LinkedList from './linked-list'
 
 class Snake {
-    constructor(x, y, dir) {
+    constructor(x, y, dir, freeCells) {
         let head = new Part(x, y)
+        this.freeCells = freeCells
         this.positions = new Set()
         this.positions.add(`${x},${y}`)
+        this.freeCells.delete(`${x},${y}`)
         this.parts = new LinkedList(head)
         this.queue = new LinkedList(dir)
         this.createSnake(x, y)
@@ -25,6 +27,7 @@ class Snake {
         let part = new Part(x, y)
         this.parts.addTail(part)
         this.positions.add(`${x},${y}`)
+        this.freeCells.delete(`${x},${y}`)
     }
 
     move = (removeTail) => {
@@ -41,10 +44,12 @@ class Snake {
         let newHead = new Part(x, y)
         this.positions.add(`${x},${y}`)
         this.parts.addHead(newHead)
+        this.freeCells.delete(`${x},${y}`)
 
         if (removeTail) {
             let {x, y} = this.parts.popTail()
             this.positions.delete(`${x},${y}`)
+            this.freeCells.add(`${x},${y}`)
         }
     }
 
