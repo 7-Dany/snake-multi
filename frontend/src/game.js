@@ -9,8 +9,7 @@ class Game {
         this.canvas = new Canvas('snake', width, height, cellWidth, cellHeight)
         this.freeCells = new IndexedMap()
         this.createFreeCells()
-
-        this.snakes = [new Snake(5, 5, 'u', this.freeCells)]
+        this.snakes = [new Snake(Math.floor(this.canvas.gridWidth / 2), Math.floor(this.canvas.gridHeight / 2), 'u', this.freeCells)]
         this.food = new Food(this.canvas, this.snakes, this.freeCells)
         this.renderer = new Renderer(this.canvas)
 

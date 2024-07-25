@@ -1,5 +1,5 @@
 import Part from './part'
-import LinkedList from './linked-list'
+import LinkedList from '../misc/linked-list'
 
 class Snake {
     constructor(x, y, dir, freeCells) {

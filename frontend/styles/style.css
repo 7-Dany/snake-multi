@@ -135,6 +135,18 @@ form input {
 
 #match {
   width: 100%;
+  min-width: 432px;
+  outline: none;
+}
+
+#match.before-ready {
+  border: 1px solid #57f491aa;
+  background-color: transparent;
+  color: #1a1a1a;
+}
+
+#match.ready {
+  background-color: #57f491aa;
 }
 
 #cards {
@@ -158,6 +170,19 @@ form input {
   height: 180px;
   object-fit: contain;
   margin-bottom: 1rem;
+}
+
+#opponent {
+  display: none;
+}
+
+#opponent.active {
+  display: block;
+}
+
+#opponent.ready,
+#mine.ready {
+  background-color: #646cffaa;
 }
 
 

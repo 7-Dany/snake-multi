@@ -1,31 +1,40 @@
 import { io } from "socket.io-client";
+import EventEmitter from './misc/EventEmitter';
 
-class Socket {
+class Socket extends EventEmitter {
     constructor(url) {
-        this.data = {}
-        this.username = ""
+        super();
+        this.data = {};
+        this.username = "";
 
-        this.socket = io(url)
-        
-        this.socket.on("connect", this.connect) 
+        this.socket = io(url);
+
+        this.socket.on('connect', this.connect);
+    }
+
+    emitEvent = (event) => {
+        this.socket.on(event, (...args) => {
+            this.emit(event, ...args);
+        });
     }
 
     connect = () => {
-        console.log(this.socket.id)
+        this.emitEvent("receive_username");
+        this.emitEvent("opponent_info");
+        this.emitEvent("opponent_ready");
     }
 
-    registerUsername = (username, recievedHandler) => {
-        this.socket.emit("send_username", username)
-
-        this.socket.on("receive_username", (received) => {
-            const isReceived = recievedHandler(received)
-            if(isReceived) this.username = username
-        })
+    registerUsername = (username) => {
+        this.socket.emit("send_username", username);
     }
 
     startMatching = () => {
-        this.socket.emit("start_matching", this.username)
+        this.socket.emit("start_matching", this.username);
+    }
+
+    readyForStart = () => {
+        this.socket.emit("ready_for_start");
     }
 }
 
-export default Socket
+export default Socket;

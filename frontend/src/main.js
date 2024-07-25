@@ -1,92 +1,144 @@
-import Socket from "./socket"
 import { isValidUsername } from "./misc/utils"
+import Socket from "./socket"
 import Game from "./game"
 
-// Game Classes
-const socket = new Socket("http://localhost:3000")
-const game = new Game(800, 800, 20, 20)
+class Main {
+    constructor() {
+        this.socket = new Socket("http://localhost:3000")
+        this.game = new Game(800, 800, 20, 20)
+        this.isSingle = true
 
-// Sections
-const playerOption = document.querySelector('#player-option')
-const userInfo = document.querySelector('#user-info')
-const matchCards = document.querySelector('#match-cards')
-const snakeCanvas = document.querySelector('#snake-canvas')
+        // Sections
+        this.playerOption = document.querySelector('#player-option')
+        this.userInfo = document.querySelector('#user-info')
+        this.matchCards = document.querySelector('#match-cards')
+        this.snakeCanvas = document.querySelector('#snake-canvas')
 
-// Player option
-const singePlayer = document.querySelector('#single-option')
-const mutpliePlayers = document.querySelector('#multi-option')
-const confirmOption = document.querySelector('#confirm-option')
+        // Player option
+        this.singePlayer = document.querySelector('#single-option')
+        this.mutpliePlayers = document.querySelector('#multi-option')
+        this.confirmOption = document.querySelector('#confirm-option')
 
-// User form
-const form = document.querySelector('#user-form')
-const input = document.querySelector('#username')
+        // User form
+        this.form = document.querySelector('#user-form')
+        this.input = document.querySelector('#username')
 
-// Matching
-const match = document.querySelector('#match')
+        // Matching
+        this.match = document.querySelector('#match')
 
-let isSingle = true
+        // My Card
+        this.myCard = document.querySelector('#mine')
+        this.myUsername = document.querySelector('#mine-name')
 
-const recievedHandler = (recieved) => {
-    const recievedLog = {
-        0: "Username has been created.",
-        1: "Username exists.",
-        2: "Unexpected error."
+        // Opponent Card
+        this.opponentCard = document.querySelector('#opponent')
+        this.opponentName = document.querySelector('#opponent-name')
+
+        // Events
+        this.socketEvents()
+        this.frontEvents()
     }
 
-    switch (recieved) {
-        case 0:
-            userInfo.classList.remove('active')
-            matchCards.classList.add('active')
-            break
-        default: alert(recievedLog[recieved]); break;
+    socketEvents = () => {
+        this.socket.on("receive_username", this.handleRecievedUsername)
+        this.socket.on("opponent_ready", this.handleOpponentReady)
+        this.socket.on("opponent_info", this.handleOpponentInfo)
     }
 
-    return recieved === 0
+    handleRecievedUsername = (recieved, username) => {
+        const recievedLog = {
+            0: "Username has been created.",
+            1: "Username exists.",
+            2: "Unexpected error."
+        }
+
+        switch (recieved) {
+            case 0:
+                this.userInfo.classList.remove('active')
+                this.matchCards.classList.add('active')
+                this.myUsername.textContent = username
+                this.socket.username = username
+                break
+            default:
+                alert(recievedLog[recieved]);
+                break;
+        }
+    }
+
+    handleOpponentReady = () => {
+        this.opponentCard.classList.add('ready')
+    }
+
+    handleOpponentInfo = (username) => {
+        this.opponentCard.classList.add('active')
+        this.opponentName.textContent = username
+
+        this.match.textContent = "Ready"
+        this.match.disabled = false
+        this.match.classList.add("before-ready")
+
+        this.match.addEventListener("click", (event) => {
+            this.match.classList.add("ready")
+            this.myCard.classList.add('ready')
+            this.socket.readyForStart()
+        })
+    }
+
+    frontEvents = () => {
+        // Window event for snake
+        window.addEventListener('keydown', event => {
+            let key = event.key
+            this.game.mainSnake.setDir(key)
+        })
+
+        // Single player event
+        this.singePlayer.addEventListener('click', (event) => {
+            this.isSingle = true
+            this.mutpliePlayers.classList.remove('active')
+            this.singePlayer.classList.add('active')
+        })
+
+        // MultiPlayer event
+        this.mutpliePlayers.addEventListener('click', (event) => {
+            this.isSingle = false
+            this.singePlayer.classList.remove('active')
+            this.mutpliePlayers.classList.add('active')
+        })
+
+        // Confirm option
+        this.confirmOption.addEventListener('click', (event) => {
+            if (this.isSingle) {
+                this.playerOption.classList.remove('active')
+                this.snakeCanvas.classList.add('active')
+                this.game.startGame()
+            }
+            else {
+                this.playerOption.classList.remove('active')
+                this.userInfo.classList.add('active')
+            }
+        })
+
+        // Form event
+        this.form.addEventListener("submit", (event) => {
+            event.preventDefault()
+
+            let username = this.input.value
+            if (!username) return
+
+            if (!isValidUsername(username)) {
+                alert("A valid username: letters + numbers, no spaces or symbols.")
+                return
+            }
+
+            this.socket.registerUsername(username)
+        })
+
+        // Match Event
+        this.match.addEventListener('click', (event) => {
+            this.socket.startMatching()
+            this.match.disabled = true
+        })
+    }
 }
 
-form.addEventListener("submit", (event) => {
-    event.preventDefault()
-
-    let value = input.value
-    if (!value) return
-
-    if (!isValidUsername(value)) {
-        alert("A valid username: letters + numbers, no spaces or symbols.")
-        return
-    }
-
-    socket.registerUsername(input.value, recievedHandler)
-})
-
-singePlayer.addEventListener('click', (event) => {
-    isSingle = true
-    mutpliePlayers.classList.remove('active')
-    singePlayer.classList.add('active')
-})
-
-mutpliePlayers.addEventListener('click', (event) => {
-    isSingle = false
-    singePlayer.classList.remove('active')
-    mutpliePlayers.classList.add('active')
-})
-
-confirmOption.addEventListener('click', (event) => {
-    if(isSingle){
-        playerOption.classList.remove('active')
-        snakeCanvas.classList.add('active')
-        game.startGame()
-    }
-    else{
-        playerOption.classList.remove('active')
-        userInfo.classList.add('active')
-    }
-})
-
-match.addEventListener('click', (event) => {
-    socket.startMatching()
-})
-
-window.addEventListener('keydown', event => {
-    let key = event.key
-    game.mainSnake.setDir(key)
-})
+const main = new Main()
