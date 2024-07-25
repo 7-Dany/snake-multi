@@ -9,12 +9,19 @@ class Game {
         this.canvas = new Canvas('snake', width, height, cellWidth, cellHeight)
         this.freeCells = new IndexedMap()
         this.createFreeCells()
-        this.snakes = [new Snake(Math.floor(this.canvas.gridWidth / 2), Math.floor(this.canvas.gridHeight / 2), 'u', this.freeCells)]
+
+        this.snakes = []
         this.food = new Food(this.canvas, this.snakes, this.freeCells)
         this.renderer = new Renderer(this.canvas)
 
         this.running = true
-        this.mainSnake = this.snakes[0]
+    }
+
+    createMainSnake = () => {
+        let midX = Math.floor(this.canvas.gridWidth / 2)
+        let midY = Math.floor(this.canvas.gridHeight / 2)
+        this.mainSnake = new Snake(midX, midY, 'u', this.freeCells)
+        this.snakes.push(this.mainSnake)
     }
 
     createFreeCells = () => {
@@ -37,9 +44,9 @@ class Game {
 
     gameLoop = () => {
         this.renderer.renderCanvas(this.snakes, this.food)
-        
+
         if (!this.running) return
-        
+
         if (this.isHittingBoundries(this.mainSnake) || this.isHittingItSelf(this.mainSnake)) {
             this.running = false
             return
@@ -51,11 +58,11 @@ class Game {
             removeTail = false
             this.food.generate()
         }
-        
         this.mainSnake.move(removeTail)
     }
 
     startGame = () => {
+        this.createMainSnake()
         this.canvas.animate(this.gameLoop)
     }
 }

@@ -31,10 +31,10 @@ class Renderer {
     }
 
     renderCanvas = (snakes, food) => {
+        this.renderFood(food)
         for(let snake of snakes){
             this.renderSnake(snake)
         }
-        this.renderFood(food)
     }
 }
 

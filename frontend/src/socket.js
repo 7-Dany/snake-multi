@@ -4,7 +4,6 @@ import EventEmitter from './misc/EventEmitter';
 class Socket extends EventEmitter {
     constructor(url) {
         super();
-        this.data = {};
         this.username = "";
 
         this.socket = io(url);
