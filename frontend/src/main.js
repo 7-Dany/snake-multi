@@ -1,6 +1,6 @@
 import { isValidUsername } from "./misc/utils"
-import Socket from "./socket"
-import Game from "./game"
+import Socket from "./Socket"
+import Game from "./Game"
 
 class Main {
     constructor() {

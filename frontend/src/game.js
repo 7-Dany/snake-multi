@@ -1,8 +1,8 @@
-import Canvas from "./front/canvas"
-import Snake from "./Snake"
-import Food from "./Snake/food"
+import Canvas from "./front/Canvas"
+import Snake from "./Snake/Snake"
+import Food from "./Snake/Food"
 import Renderer from './front/Renderer'
-import IndexedMap from "./misc/indexed-map"
+import IndexedMap from "./misc/IndexedMap"
 
 class Game {
     constructor(width, height, cellWidth, cellHeight) {
