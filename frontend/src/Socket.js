@@ -21,6 +21,7 @@ class Socket extends EventEmitter {
         this.emitEvent("receive_username");
         this.emitEvent("opponent_info");
         this.emitEvent("opponent_ready");
+        this.emitEvent("start_game")
     }
 
     registerUsername = (username) => {
@@ -33,6 +34,10 @@ class Socket extends EventEmitter {
 
     readyForStart = () => {
         this.socket.emit("ready_for_start");
+    }
+
+    startGame = () =>{
+        this.socket.emit("start_game")
     }
 }
 

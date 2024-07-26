@@ -11,7 +11,7 @@ class Game {
         this.createFreeCells()
 
         this.snakes = []
-        this.food = new Food(this.canvas, this.snakes, this.freeCells)
+        this.food = new Food(this.canvas, this.freeCells)
         this.renderer = new Renderer(this.canvas)
 
         this.running = true
@@ -20,8 +20,20 @@ class Game {
     createMainSnake = () => {
         let midX = Math.floor(this.canvas.gridWidth / 2)
         let midY = Math.floor(this.canvas.gridHeight / 2)
-        this.mainSnake = new Snake(midX, midY, 'u', this.freeCells)
+        this.mainSnake = new Snake('u', this.freeCells)
+        this.mainSnake.createSnake(midX, midY)
         this.snakes.push(this.mainSnake)
+    }
+
+    createSnakesFromPositions = (positions) => {
+        const {mine, mineDir, opponent, opponentDir, food} = positions
+        this.mineSnake = new Snake(mineDir, this.freeCells)
+        this.mineSnake.createFromPositions(mine)
+        this.opponentSnake = new Snake(opponentDir, this.freeCells)
+        this.opponentSnake.createFromPositions(opponent)
+        this.food.createFromPosition(food)
+        this.snakes.push(this.mineSnake)
+        this.snakes.push(this.opponentSnake)
     }
 
     createFreeCells = () => {
@@ -42,12 +54,25 @@ class Game {
         return positions.size < snake.parts.count
     }
 
+    isHittingOtherSnakes = (snake) => {
+        for (let other of this.snakes) {
+            if (snake == other) continue;
+
+            if (other.positions.has(`${snake.head().x},${snake.head().y}`)) {
+                return true
+            }
+        }
+
+        return false
+    }
+
     gameLoop = () => {
         this.renderer.renderCanvas(this.snakes, this.food)
 
         if (!this.running) return
 
-        if (this.isHittingBoundries(this.mainSnake) || this.isHittingItSelf(this.mainSnake)) {
+        if (this.isHittingBoundries(this.mainSnake) ||
+            this.isHittingItSelf(this.mainSnake)) {
             this.running = false
             return
         }
@@ -61,9 +86,18 @@ class Game {
         this.mainSnake.move(removeTail)
     }
 
+    multiGameLoop = () => {
+        this.renderer.renderCanvas(this.snakes, this.food)
+    }
+
     startGame = () => {
-        this.createMainSnake()
         this.canvas.animate(this.gameLoop)
+    }
+
+    startMultiGame = (positions) => {
+        this.createSnakesFromPositions(positions)
+
+        this.canvas.animate(this.multiGameLoop)
     }
 }
 

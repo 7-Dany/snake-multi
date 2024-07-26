@@ -1,6 +1,11 @@
+import IndexedMap from '../misc/IndexedMap'
+
 class Food {
-    constructor(canvas, freeCells) {
-        this.canvas = canvas
+    private freeCells: IndexedMap
+    public x: string | null
+    public y: string | null
+
+    constructor(freeCells: IndexedMap) {
         this.freeCells = freeCells
         this.x = null
         this.y = null
@@ -14,14 +19,6 @@ class Food {
 
         let position = this.freeCells.getRandomPosition()
         const [x, y] = position.split(',')
-        this.x = x
-        this.y = y
-
-        this.freeCells.delete(`${this.x},${this.y}`)
-    }
-
-    createFromPosition = (position) => {
-        let [x, y] = position
         this.x = x
         this.y = y
         this.freeCells.delete(`${this.x},${this.y}`)

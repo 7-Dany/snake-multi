@@ -41,8 +41,9 @@ class Main {
 
     socketEvents = () => {
         this.socket.on("receive_username", this.handleRecievedUsername)
-        this.socket.on("opponent_ready", this.handleOpponentReady)
         this.socket.on("opponent_info", this.handleOpponentInfo)
+        this.socket.on("opponent_ready", this.handleOpponentReady)
+        this.socket.on("start_game", this.startGame)
     }
 
     handleRecievedUsername = (recieved, username) => {
@@ -67,6 +68,7 @@ class Main {
 
     handleOpponentReady = () => {
         this.opponentCard.classList.add('ready')
+        this.socket.startGame()
     }
 
     handleOpponentInfo = (username) => {
@@ -84,13 +86,21 @@ class Main {
         })
     }
 
-    frontEvents = () => {
+    startGame = (positions) => {
+        this.matchCards.classList.remove('active')
+        this.snakeCanvas.classList.add('active')
+        this.game.startMultiGame(positions)
+    }
+
+    keyEvents = () => {
         // Window event for snake
         window.addEventListener('keydown', event => {
             let key = event.key
             this.game.mainSnake.setDir(key)
         })
+    }
 
+    frontEvents = () => {
         // Single player event
         this.singePlayer.addEventListener('click', (event) => {
             this.isSingle = true
@@ -110,6 +120,8 @@ class Main {
             if (this.isSingle) {
                 this.playerOption.classList.remove('active')
                 this.snakeCanvas.classList.add('active')
+                this.game.createMainSnake()
+                this.keyEvents()
                 this.game.startGame()
             }
             else {

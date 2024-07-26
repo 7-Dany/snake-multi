@@ -1,10 +1,20 @@
 import type { Server as HTTPServer } from 'http'
 import { Server, type Socket } from 'socket.io'
+import Game from './Game'
+
+type TRoom = {
+    isFirstReady: boolean
+    isSecondReady: boolean
+    didSend: boolean
+    game: Game | null
+}
 
 type Matching = {
-    username: string
-    opponentUsername: string
-    opponentSocket: string
+    firstPlayer: string
+    firstPlayerSocket: string
+    secondPlayer: string
+    secondPlayerSocket: string
+    room: TRoom
 }
 
 class SocketServer {
@@ -38,6 +48,7 @@ class SocketServer {
         socket.on("send_username", (username: string) => this.receiveUserName(socket, username))
         socket.on("start_matching", (username: string) => this.startMatching(socket, username))
         socket.on("ready_for_start", () => this.readyForStart(socket))
+        socket.on("start_game", () => this.startGame(socket))
     }
 
     receiveUserName = (socket: Socket, username: string) => {
@@ -77,18 +88,78 @@ class SocketServer {
         let secondPlayerSocket = this.idTable.get(secondPlayer) as string
 
         if (firstPlayer && secondPlayer) {
-            this.inMatching.set(firstPlayerSocket, { username: firstPlayer, opponentUsername: secondPlayer, opponentSocket: secondPlayerSocket })
-            this.inMatching.set(secondPlayerSocket, { username: secondPlayer, opponentUsername: firstPlayer, opponentSocket: firstPlayerSocket })
+            let room: TRoom = {
+                didSend: false,
+                isFirstReady: false,
+                isSecondReady: false,
+                game: null
+            }
+
+            let matchingInfo = {
+                firstPlayer: firstPlayer,
+                firstPlayerSocket: firstPlayerSocket,
+                secondPlayer: secondPlayer,
+                secondPlayerSocket: secondPlayerSocket,
+                room: room
+            }
+
+            this.inMatching.set(firstPlayerSocket, matchingInfo)
+            this.inMatching.set(secondPlayerSocket, matchingInfo)
+
             this.io.to(firstPlayerSocket).emit("opponent_info", secondPlayer)
             this.io.to(secondPlayerSocket).emit("opponent_info", firstPlayer)
         }
     }
 
-    readyForStart = (socket:Socket) => {
+    readyForStart = (socket: Socket) => {
         let id = socket.id
-        let roomInfo = this.inMatching.get(id)
-        let opponentSocket = roomInfo?.opponentSocket as string
-        this.io.to(opponentSocket).emit("opponent_ready")
+        let userInfo = this.inMatching.get(id)
+        if (!userInfo) return
+
+        const { firstPlayerSocket, secondPlayerSocket, room } = userInfo
+        if (id === firstPlayerSocket) {
+            room.isFirstReady = true
+            this.io.to(secondPlayerSocket).emit("opponent_ready")
+        }
+
+        if (id === secondPlayerSocket) {
+            room.isSecondReady = true
+            this.io.to(userInfo.firstPlayerSocket).emit("opponent_ready")
+        }
+    }
+
+    startGame = (socket: Socket) => {
+        const id = socket.id
+        const userInfo = this.inMatching.get(id)
+        if (!userInfo) return
+
+        const { room, firstPlayerSocket, secondPlayerSocket } = userInfo
+        if (room.isFirstReady && room.isSecondReady && !room.didSend) {
+            const game = new Game(800, 800, 20, 20)
+            room.game = game
+            room.game.createSnakes()
+            const positions = room.game.returnPositions()
+            room.didSend = true
+
+            let first = {
+                mine: positions.first,
+                mineDir: positions.firstDir,
+                opponent: positions.second,
+                opponendDir: positions.secondDir,
+                food: positions.food
+            }
+
+            let second = {
+                mine: positions.second,
+                mineDir: positions.secondDir,
+                opponent: positions.first,
+                opponentDir: positions.firstDir,
+                food: positions.food
+            }
+
+            this.io.to(firstPlayerSocket).emit("start_game", first)
+            this.io.to(secondPlayerSocket).emit("start_game", second)
+        }
     }
 }
 
