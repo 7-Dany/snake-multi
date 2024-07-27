@@ -5,16 +5,26 @@ import Renderer from './front/Renderer'
 import IndexedMap from "./misc/IndexedMap"
 
 class Game {
-    constructor(width, height, cellWidth, cellHeight) {
+    constructor(width, height, cellWidth, cellHeight, socket) {
         this.canvas = new Canvas('snake', width, height, cellWidth, cellHeight)
+        this.renderer = new Renderer(this.canvas)
         this.freeCells = new IndexedMap()
         this.createFreeCells()
 
         this.snakes = []
         this.food = new Food(this.canvas, this.freeCells)
-        this.renderer = new Renderer(this.canvas)
-
         this.running = true
+
+        this.socket = socket
+
+        this.socketEvents()
+    }
+
+    socketEvents = () => {
+        this.socket.on("receive_mine_movement", this.handleMovingSnake)
+        this.socket.on("receive_opponent_movement", this.handleOpponentMovement)
+        this.socket.on("change_mine_direction", this.handleMineDirection)
+        this.socket.on("change_opponent_direction", this.handleOpponentDirection)
     }
 
     createMainSnake = () => {
@@ -26,12 +36,15 @@ class Game {
     }
 
     createSnakesFromPositions = (positions) => {
-        const {mine, mineDir, opponent, opponentDir, food} = positions
+        const { mine, mineDir, opponent, opponentDir, food } = positions
+
         this.mineSnake = new Snake(mineDir, this.freeCells)
         this.mineSnake.createFromPositions(mine)
         this.opponentSnake = new Snake(opponentDir, this.freeCells)
         this.opponentSnake.createFromPositions(opponent)
+
         this.food.createFromPosition(food)
+        this.snakes = []
         this.snakes.push(this.mineSnake)
         this.snakes.push(this.opponentSnake)
     }
@@ -66,6 +79,34 @@ class Game {
         return false
     }
 
+    handleMovingSnake = (removeTail, foodPosition) => {
+        this.mineSnake.move(removeTail)
+        this.food.createFromPosition(foodPosition)
+    }
+
+    handleOpponentMovement = (removeTail, foodPosition) => {
+        this.opponentSnake.move(removeTail)
+        this.food.createFromPosition(foodPosition)
+    }
+
+    handleMineDirection = (direction) => {
+        this.mineSnake.setDir(direction)
+    }
+
+    handleOpponentDirection = (direction) => {
+        this.opponentSnake.setDir(direction)
+    }
+
+    multiGameLoop = () => {
+        this.renderer.renderCanvas(this.snakes, this.food)
+        this.socket.moveSnake()
+    }
+
+    startMultiGame = (positions) => {
+        this.createSnakesFromPositions(positions)
+        this.canvas.animate(this.multiGameLoop)
+    }
+
     gameLoop = () => {
         this.renderer.renderCanvas(this.snakes, this.food)
 
@@ -86,18 +127,8 @@ class Game {
         this.mainSnake.move(removeTail)
     }
 
-    multiGameLoop = () => {
-        this.renderer.renderCanvas(this.snakes, this.food)
-    }
-
     startGame = () => {
         this.canvas.animate(this.gameLoop)
-    }
-
-    startMultiGame = (positions) => {
-        this.createSnakesFromPositions(positions)
-
-        this.canvas.animate(this.multiGameLoop)
     }
 }
 

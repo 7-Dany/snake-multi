@@ -3,6 +3,7 @@ import LinkedList from '../misc/LinkedList'
 
 class Snake {
     constructor(dir, freeCells) {
+        console.log(dir)
         this.positions = new Set()
         this.freeCells = freeCells
         this.parts = new LinkedList()

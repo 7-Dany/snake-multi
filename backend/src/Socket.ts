@@ -1,6 +1,7 @@
 import type { Server as HTTPServer } from 'http'
 import { Server, type Socket } from 'socket.io'
 import Game from './Game'
+import Part from './Snake/Part'
 
 type TRoom = {
     isFirstReady: boolean
@@ -49,6 +50,8 @@ class SocketServer {
         socket.on("start_matching", (username: string) => this.startMatching(socket, username))
         socket.on("ready_for_start", () => this.readyForStart(socket))
         socket.on("start_game", () => this.startGame(socket))
+        socket.on("move_mine_snake", () => this.moveSnake(socket))
+        socket.on("change_mine_direction", (direction: string) => this.changeDirection(socket, direction))
     }
 
     receiveUserName = (socket: Socket, username: string) => {
@@ -145,7 +148,7 @@ class SocketServer {
                 mine: positions.first,
                 mineDir: positions.firstDir,
                 opponent: positions.second,
-                opponendDir: positions.secondDir,
+                opponentDir: positions.secondDir,
                 food: positions.food
             }
 
@@ -159,6 +162,68 @@ class SocketServer {
 
             this.io.to(firstPlayerSocket).emit("start_game", first)
             this.io.to(secondPlayerSocket).emit("start_game", second)
+        }
+    }
+
+    moveSnake = (socket: Socket) => {
+        const id = socket.id
+        const userInfo = this.inMatching.get(id)
+        if (!userInfo) return
+
+        const { firstPlayerSocket, secondPlayerSocket, room } = userInfo
+        const game = room.game
+        const snake = game?.snakes
+        const food = game?.food
+
+        if (id === firstPlayerSocket) {
+            let removeTail = true
+            let { x, y } = snake?.first.head() as Part
+            if (x === food?.x && y === food?.y) {
+                removeTail = false
+                food.generate()
+            }
+            snake?.first.move(removeTail)
+
+            let foodPosition = [food?.x, food?.y]
+            this.io.to(firstPlayerSocket).emit("receive_mine_movement", removeTail, foodPosition)
+            this.io.to(secondPlayerSocket).emit("receive_opponent_movement", removeTail, foodPosition)
+        }
+
+        if (id === secondPlayerSocket) {
+            let removeTail = true
+            let { x, y } = snake?.second.head() as Part
+            if (x === food?.x && y === food?.y) {
+                removeTail = false
+                food.generate()
+            }
+            snake?.second.move(removeTail)
+
+            let foodPosition = [food?.x, food?.y]
+            this.io.to(secondPlayerSocket).emit("receive_mine_movement", removeTail, foodPosition)
+            this.io.to(firstPlayerSocket).emit("receive_opponent_movement", removeTail, foodPosition)
+        }
+
+    }
+
+    changeDirection = (socket: Socket, direction: string) => {
+        const id = socket.id
+        const userInfo = this.inMatching.get(id)
+        if (!userInfo) return
+
+        const { firstPlayerSocket, secondPlayerSocket, room } = userInfo
+        const game = room.game
+        const snake = game?.snakes
+
+        if (id === firstPlayerSocket) {
+            snake?.first.setDir(direction)
+            this.io.to(firstPlayerSocket).emit("change_mine_direction", direction)
+            this.io.to(secondPlayerSocket).emit("change_opponent_direction", direction)
+        }
+
+        if(id === secondPlayerSocket){
+            snake?.second.setDir(direction)
+            this.io.to(secondPlayerSocket).emit("change_mine_direction", direction)
+            this.io.to(firstPlayerSocket).emit("change_opponent_direction", direction)
         }
     }
 }

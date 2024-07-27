@@ -2,8 +2,8 @@ import IndexedMap from '../misc/IndexedMap'
 
 class Food {
     private freeCells: IndexedMap
-    public x: string | null
-    public y: string | null
+    public x: number | null
+    public y: number | null
 
     constructor(freeCells: IndexedMap) {
         this.freeCells = freeCells
@@ -19,8 +19,8 @@ class Food {
 
         let position = this.freeCells.getRandomPosition()
         const [x, y] = position.split(',')
-        this.x = x
-        this.y = y
+        this.x = Number(x)
+        this.y = Number(y)
         this.freeCells.delete(`${this.x},${this.y}`)
     }
 }

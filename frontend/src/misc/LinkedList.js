@@ -16,7 +16,7 @@ class LinkedList {
     }
 
     addTail = (data) => {
-        if (this.count == 0) {
+        if (this.count === 0) {
             let node = new Node(data, null, null)
             this.head = node
             this.tail = node
@@ -32,7 +32,10 @@ class LinkedList {
 
     addHead = (data) => {
         let node = new Node(data, null, this.head)
-        this.head.prev = node
+        if (this.count > 0) {
+            this.head.prev = node
+        }
+
         this.head = node
 
         this.count++
@@ -40,24 +43,24 @@ class LinkedList {
 
     popTail = () => {
         let prev = this.tail.prev
-        let deleted = this.tail.data
-        prev.next = null
+        let data = this.tail.data
+        if(prev) prev.next = null
         this.tail = prev
 
         this.count--
 
-        return deleted
+        return data
     }
 
     popHead = () => {
         let next = this.head.next
-        let deleted = this.head.data
+        let data = this.head.data
         if (next) next.prev = null
         this.head = next
 
         this.count--
 
-        return deleted
+        return data
     }
 }
 

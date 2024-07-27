@@ -5,7 +5,7 @@ import Game from "./Game"
 class Main {
     constructor() {
         this.socket = new Socket("http://localhost:3000")
-        this.game = new Game(800, 800, 20, 20)
+        this.game = new Game(800, 800, 20, 20, this.socket)
         this.isSingle = true
 
         // Sections
@@ -87,6 +87,11 @@ class Main {
     }
 
     startGame = (positions) => {
+        window.addEventListener("keydown", (event) => {
+            let key = event.key
+            this.socket.changeSnakeDirection(key)
+        })
+
         this.matchCards.classList.remove('active')
         this.snakeCanvas.classList.add('active')
         this.game.startMultiGame(positions)
