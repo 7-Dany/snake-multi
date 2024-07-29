@@ -22,10 +22,7 @@ class Socket extends EventEmitter {
         this.emitEvent("opponent_info");
         this.emitEvent("opponent_ready");
         this.emitEvent("start_game")
-        this.emitEvent("receive_mine_movement")
-        this.emitEvent("receive_opponent_movement")
-        this.emitEvent("change_mine_direction")
-        this.emitEvent("change_opponent_direction")
+        this.emitEvent("update_snakes")
     }
 
     registerUsername = (username) => {
@@ -49,7 +46,7 @@ class Socket extends EventEmitter {
     }
 
     changeSnakeDirection = (direction) => {
-        this.socket.emit("change_mine_direction", direction)
+        this.socket.emit("change_direction", direction)
     }
 }
 

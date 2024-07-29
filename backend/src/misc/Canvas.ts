@@ -1,3 +1,10 @@
+export type CanvasParams = {
+    width: number
+    height: number
+    cellWidth: number
+    cellHeight: number
+}
+
 class Canvas {
     public width: number
     public height: number
@@ -6,7 +13,8 @@ class Canvas {
     public gridWidth: number
     public gridHeight: number
 
-    constructor(width: number, height: number, cellWidth: number, cellHeight: number) {
+    constructor({ width, height, cellWidth, cellHeight }: CanvasParams) {
+
         this.width = width
         this.height = height
         this.cellWidth = cellWidth

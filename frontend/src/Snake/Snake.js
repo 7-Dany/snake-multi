@@ -2,8 +2,8 @@ import Part from './Part'
 import LinkedList from '../misc/LinkedList'
 
 class Snake {
-    constructor(dir, freeCells) {
-        console.log(dir)
+    constructor(id, dir, freeCells) {
+        this.id = id
         this.positions = new Set()
         this.freeCells = freeCells
         this.parts = new LinkedList()

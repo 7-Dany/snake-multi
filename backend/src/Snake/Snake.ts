@@ -5,13 +5,15 @@ import IndexedMap from '../misc/IndexedMap'
 type Directions = "u" | "d" | "l" | "r"
 
 class Snake {
+    public id: string
     public freeCells: IndexedMap
     public positions: Set<string>
     public parts: LinkedList<Part>
     public dir: Directions | undefined
     public queue: LinkedList<Directions>
 
-    constructor(x: number, y: number, dir: Directions, freeCells: IndexedMap) {
+    constructor(id: string, x: number, y: number, dir: Directions, freeCells: IndexedMap) {
+        this.id = id
         let head = new Part(x, y)
         this.freeCells = freeCells
         this.positions = new Set()

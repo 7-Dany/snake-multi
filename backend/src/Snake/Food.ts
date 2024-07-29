@@ -9,7 +9,6 @@ class Food {
         this.freeCells = freeCells
         this.x = null
         this.y = null
-        this.generate()
     }
 
     generate = () => {

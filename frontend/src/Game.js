@@ -21,32 +21,32 @@ class Game {
     }
 
     socketEvents = () => {
-        this.socket.on("receive_mine_movement", this.handleMovingSnake)
-        this.socket.on("receive_opponent_movement", this.handleOpponentMovement)
-        this.socket.on("change_mine_direction", this.handleMineDirection)
-        this.socket.on("change_opponent_direction", this.handleOpponentDirection)
+        this.socket.on("update_snakes", this.updateSnakes)
     }
 
     createMainSnake = () => {
         let midX = Math.floor(this.canvas.gridWidth / 2)
         let midY = Math.floor(this.canvas.gridHeight / 2)
-        this.mainSnake = new Snake('u', this.freeCells)
+        this.mainSnake = new Snake(1, 'u', this.freeCells)
         this.mainSnake.createSnake(midX, midY)
         this.snakes.push(this.mainSnake)
     }
 
     createSnakesFromPositions = (positions) => {
-        const { mine, mineDir, opponent, opponentDir, food } = positions
-
-        this.mineSnake = new Snake(mineDir, this.freeCells)
-        this.mineSnake.createFromPositions(mine)
-        this.opponentSnake = new Snake(opponentDir, this.freeCells)
-        this.opponentSnake.createFromPositions(opponent)
+        const { food, mySnake, opponents } = positions
 
         this.food.createFromPosition(food)
+
         this.snakes = []
-        this.snakes.push(this.mineSnake)
-        this.snakes.push(this.opponentSnake)
+        const mine = new Snake(mySnake.id, mySnake.dir, this.freeCells)
+        mine.createFromPositions(mySnake.positions)
+        this.snakes.push(mine)
+
+        for (let opponent of opponents) {
+            const oppSnake = new Snake(opponent.id, opponent.dir, this.freeCells)
+            oppSnake.createFromPositions(opponent.positions)
+            this.snakes.push(oppSnake)
+        }
     }
 
     createFreeCells = () => {
@@ -67,39 +67,23 @@ class Game {
         return positions.size < snake.parts.count
     }
 
-    isHittingOtherSnakes = (snake) => {
-        for (let other of this.snakes) {
-            if (snake == other) continue;
+    updateSnakes = (updatedMovement) => {
+        const { foodPosition, snakesData } = updatedMovement
+        this.food.createFromPosition(foodPosition)
 
-            if (other.positions.has(`${snake.head().x},${snake.head().y}`)) {
-                return true
+        for (let snake of snakesData) {
+            for (let current of this.snakes) {
+                if (current.id === snake.id) {
+                    console.log(current.positions.size)
+                    current.dir = snake.dir
+                    if (!snake.isHitting) current.move(snake.removeTail)
+                }
             }
         }
-
-        return false
-    }
-
-    handleMovingSnake = (removeTail, foodPosition) => {
-        this.mineSnake.move(removeTail)
-        this.food.createFromPosition(foodPosition)
-    }
-
-    handleOpponentMovement = (removeTail, foodPosition) => {
-        this.opponentSnake.move(removeTail)
-        this.food.createFromPosition(foodPosition)
-    }
-
-    handleMineDirection = (direction) => {
-        this.mineSnake.setDir(direction)
-    }
-
-    handleOpponentDirection = (direction) => {
-        this.opponentSnake.setDir(direction)
     }
 
     multiGameLoop = () => {
         this.renderer.renderCanvas(this.snakes, this.food)
-        this.socket.moveSnake()
     }
 
     startMultiGame = (positions) => {
@@ -107,7 +91,9 @@ class Game {
         this.canvas.animate(this.multiGameLoop)
     }
 
-    gameLoop = () => {
+    gameLoop = async () => {
+        await this.canvas.sleep(40)
+
         this.renderer.renderCanvas(this.snakes, this.food)
 
         if (!this.running) return

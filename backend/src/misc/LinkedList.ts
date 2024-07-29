@@ -2,6 +2,7 @@ class Node<T> {
     public data: T
     public next: Node<T> | undefined
     public prev: Node<T> | undefined
+
     constructor(data: T, prev: Node<T> | undefined = undefined, next: Node<T> | undefined = undefined) {
         this.data = data
         this.prev = prev
@@ -10,15 +11,37 @@ class Node<T> {
 }
 
 class LinkedList<T> {
-    public head : Node<T> | undefined
-    public tail : Node<T> | undefined
+    public head: Node<T> | undefined
+    public tail: Node<T> | undefined
     public count: number
-    constructor(data: T) {
+
+    constructor(data?: T) {
         this.head = undefined
         this.tail = undefined
         this.count = 0
 
         if (data) this.addTail(data)
+    }
+
+    addHead = (data: T) => {
+        let node = new Node<T>(data, undefined, this.head)
+        if (this.head) this.head.prev = node
+        this.head = node
+
+        this.count++
+    }
+
+    popHead = () => {
+        let next = this.head?.next
+        let deleted = this.head?.data
+        if (next) {
+            next.prev = undefined
+            this.head = next
+        }
+
+        this.count--
+
+        return deleted
     }
 
     addTail = (data: T) => {
@@ -36,14 +59,6 @@ class LinkedList<T> {
         this.count++
     }
 
-    addHead = (data: T) => {
-        let node = new Node<T>(data, undefined, this.head)
-        if (this.head) this.head.prev = node
-        this.head = node
-
-        this.count++
-    }
-
     popTail = () => {
         let prev = this.tail?.prev
         let deleted = this.tail?.data
@@ -56,17 +71,16 @@ class LinkedList<T> {
         return deleted
     }
 
-    popHead = () => {
-        let next = this.head?.next
-        let deleted = this.head?.data
-        if (next) {
-            next.prev = undefined
-            this.head = next
+    has = (id: string) => {
+        if (!this.head) return false
+
+        let current: Node<T> | undefined = this.head
+        while (current) {
+            if (current.data === id) return true
+            current = current.next
         }
 
-        this.count--
-
-        return deleted
+        return false
     }
 }
 
