@@ -1,4 +1,4 @@
-import Snake from "./Snake/Snake";
+import Snake, { Directions } from "./Snake/Snake";
 import Food from "./Snake/Food";
 import IndexedMap from "./misc/IndexedMap";
 import Canvas, { CanvasParams } from "./misc/Canvas";
@@ -67,7 +67,6 @@ class Room {
     return false;
   };
 
-
   isEatingFood = (snake: Snake) => {
     let { x, y } = snake.head() as Part
     let foodEaten = false
@@ -106,67 +105,41 @@ class Room {
     }
   }
 
-  handleSnakeMovement = (snake: Snake) => {
-    let didHit = false
-    if (
-      this.isHittingBoundries(snake) ||
+  isDead = (snake: Snake) => {
+    return this.isHittingBoundries(snake) ||
       this.isHittingItSelf(snake) ||
       this.isHittingOtherSnakes(snake)
-    ) {
-      didHit = true
-    }
-
-    let didEat = false
-    console.log("Snake, ", snake.head())
-    console.log("Food, ", this.food.x, this.food.y)
-    if (this.isEatingFood(snake)) {
-      didEat = true
-    }
-
-    let data = { id: snake.id, isHitting: didHit, removeTail: !didEat, dir: snake.dir }
-    if (!didHit) snake.move(!didEat)
-    return [data, didEat]
   }
 
-  updateSnakes = () => {
-    let snakesData = []
-    let isFoodEaten = false
-
-    for (let snake in this.snakes) {
-      let current = this.snakes[snake]
-      let [data, didEat] = this.handleSnakeMovement(current)
-      if (didEat) isFoodEaten = true
-      snakesData.push(data)
-    }
-
-    if (isFoodEaten) this.food.generate()
-    let foodPosition = [this.food.x, this.food.y]
-
-    let updatedMovement = {
-      foodPosition, snakesData
-    }
-
-    for (let snake in this.snakes) {
-      this.io.to(snake).emit("update_snakes", updatedMovement)
-    }
-  }
-
-  startGame = (ids: string[]) => {
+  startGame = async (ids: string[]) => {
     this.createFreeCells()
     this.food.generate()
     this.createSnakes(ids)
     this.sendSnakes()
-
-    setInterval(() => {
-      this.updateSnakes()
-    }, 100)
   };
 
-  updateSnakeDirection = (id: string, direction: string) => {
-    for (let snakeId in this.snakes) {
-      if (snakeId === id) {
-        this.snakes[snakeId].setDir(direction)
-      }
+  moveSnake = (id: string) => {
+    let snake = this.snakes[id]
+
+    let isDead = this.isDead(snake);
+    let didEat = this.isEatingFood(snake)
+    if (didEat) this.food.generate()
+    if (!isDead) snake.move(!didEat)
+
+    let food = [this.food.x, this.food.y]
+    let data = { id, removeTail: !didEat, food, isDead }
+
+    for (let other in this.snakes) {
+      this.io.to(other).emit("move_snake", data)
+    }
+  }
+
+  updateSnakeDirection = (id: string, direction: Directions) => {
+    let snake = this.snakes[id]
+    snake.setDir(direction)
+
+    for (let snake in this.snakes) {
+      this.io.to(snake).emit("change_direction", { id, direction })
     }
   }
 }

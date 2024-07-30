@@ -2,7 +2,7 @@ import Part from './Part'
 import LinkedList from '../misc/LinkedList'
 import IndexedMap from '../misc/IndexedMap'
 
-type Directions = "u" | "d" | "l" | "r"
+export type Directions = "u" | "d" | "l" | "r"
 
 class Snake {
     public id: string
@@ -10,7 +10,6 @@ class Snake {
     public positions: Set<string>
     public parts: LinkedList<Part>
     public dir: Directions | undefined
-    public queue: LinkedList<Directions>
 
     constructor(id: string, x: number, y: number, dir: Directions, freeCells: IndexedMap) {
         this.id = id
@@ -20,7 +19,6 @@ class Snake {
         this.positions.add(`${x},${y}`)
         this.freeCells.delete(`${x},${y}`)
         this.parts = new LinkedList(head)
-        this.queue = new LinkedList(dir)
         this.dir = dir
         this.createSnake(x, y)
     }
@@ -67,7 +65,6 @@ class Snake {
         let head = this.head()
         let x = head?.x as number
         let y = head?.y as number
-        if (this.queue.count > 0) this.dir = this.queue.popHead()
 
         switch (this.dir) {
             case 'u': y--; break;
@@ -89,7 +86,7 @@ class Snake {
     }
 
     getNextMove = () => {
-        let dir = this.queue.count > 0 ? this.queue.head?.data : this.dir
+        let dir = this.dir
         let data = this.parts.head?.data
         let part = new Part(data?.x as number, data?.y as number)
         switch (dir) {
@@ -102,18 +99,8 @@ class Snake {
         return part
     }
 
-    setDir = (key: string) => {
-        if (key === 'a' && this.dir === 'r') return
-        if (key === 's' && this.dir === 'u') return
-        if (key === 'd' && this.dir === 'l') return
-        if (key === 'w' && this.dir === 'd') return
-
-        switch (key) {
-            case 'a': this.queue.addTail('l'); break;
-            case 's': this.queue.addTail('d'); break;
-            case 'd': this.queue.addTail('r'); break;
-            case 'w': this.queue.addTail('u'); break;
-        }
+    setDir = (direction: Directions) => {
+        this.dir = direction
     }
 }
 

@@ -17,6 +17,7 @@ class Food {
         }
 
         let position = this.freeCells.getRandomPosition()
+        if(!position) return
         const [x, y] = position.split(',')
         this.x = Number(x)
         this.y = Number(y)

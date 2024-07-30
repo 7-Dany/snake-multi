@@ -89,7 +89,7 @@ class Main {
     startGame = (positions) => {
         window.addEventListener("keydown", (event) => {
             let key = event.key
-            this.socket.changeSnakeDirection(key)
+            this.game.changeDirection(key)
         })
 
         this.matchCards.classList.remove('active')

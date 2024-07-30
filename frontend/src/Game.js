@@ -21,7 +21,8 @@ class Game {
     }
 
     socketEvents = () => {
-        this.socket.on("update_snakes", this.updateSnakes)
+        this.socket.on("move_snake", this.handleMovingSnake)
+        this.socket.on("change_direction", this.handleChangingDirection)
     }
 
     createMainSnake = () => {
@@ -67,23 +68,32 @@ class Game {
         return positions.size < snake.parts.count
     }
 
-    updateSnakes = (updatedMovement) => {
-        const { foodPosition, snakesData } = updatedMovement
-        this.food.createFromPosition(foodPosition)
-
-        for (let snake of snakesData) {
-            for (let current of this.snakes) {
-                if (current.id === snake.id) {
-                    console.log(current.positions.size)
-                    current.dir = snake.dir
-                    if (!snake.isHitting) current.move(snake.removeTail)
-                }
-            }
-        }
+    changeDirection = (key) => {
+        let snake = this.snakes[0]
+        snake.setDir(key)
+        this.socket.changeSnakeDirection(snake.queue.head.data)
     }
 
-    multiGameLoop = () => {
+    handleMovingSnake = (data) => {
+        const { id, removeTail, food, isDead } = data
+        let snake = this.snakes.find(snake => snake.id === id)
+        
+        if (!isDead) {
+            snake.move(removeTail)
+        }
+
+        this.food.createFromPosition(food)
+    }
+
+    handleChangingDirection = (data) => {
+        let { id, direction } = data
+        let snake = this.snakes.find(snake => snake.id === id)
+        snake.dir = direction
+    }
+
+    multiGameLoop = async () => {
         this.renderer.renderCanvas(this.snakes, this.food)
+        this.socket.moveSnake()
     }
 
     startMultiGame = (positions) => {
@@ -92,8 +102,6 @@ class Game {
     }
 
     gameLoop = async () => {
-        await this.canvas.sleep(40)
-
         this.renderer.renderCanvas(this.snakes, this.food)
 
         if (!this.running) return

@@ -14,6 +14,7 @@ class Canvas {
     animate = async (callback) => {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
         callback()
+        await this.sleep(100)
         window.requestAnimationFrame(async () => await this.animate(callback))
     }
 

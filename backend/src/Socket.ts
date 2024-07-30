@@ -1,7 +1,7 @@
 import type { Server as HTTPServer } from 'http'
 import { Server, type Socket } from 'socket.io'
 import Room from './Room'
-import Part from './Snake/Part'
+import { Directions } from './Snake/Snake'
 import LinkedList from './misc/LinkedList'
 
 
@@ -45,7 +45,8 @@ class SocketServer {
         socket.on("start_matching", () => this.startMatching(socket))
         socket.on("ready_for_start", () => this.readyForStart(socket))
         socket.on("start_game", () => this.startGame(socket))
-        socket.on("change_direction", (direction: string) => this.changeDirection(socket, direction))
+        socket.on("move_snake", () => this.moveSnake(socket))
+        socket.on("change_direction", (direction: Directions) => this.changeDirection(socket, direction))
     }
 
     receiveUserName = (socket: Socket, username: string) => {
@@ -124,7 +125,15 @@ class SocketServer {
         room.startGame([firstId, secondId])
     }
 
-    changeDirection = (socket: Socket, direction: string) => {
+    moveSnake = (socket: Socket) => {
+        let id = socket.id
+        let userInfo = this.inMatching.get(id)
+        if(!userInfo) return
+
+        userInfo.room.moveSnake(id)
+    }
+
+    changeDirection = (socket: Socket, direction: Directions) => {
         const id = socket.id
         const userInfo = this.inMatching.get(id)
         if (!userInfo) return
