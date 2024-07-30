@@ -117,6 +117,8 @@ class Room {
     }
 
     let didEat = false
+    console.log("Snake, ", snake.head())
+    console.log("Food, ", this.food.x, this.food.y)
     if (this.isEatingFood(snake)) {
       didEat = true
     }
@@ -154,6 +156,10 @@ class Room {
     this.food.generate()
     this.createSnakes(ids)
     this.sendSnakes()
+
+    setInterval(() => {
+      this.updateSnakes()
+    }, 100)
   };
 
   updateSnakeDirection = (id: string, direction: string) => {
